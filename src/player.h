@@ -18,10 +18,12 @@ struct Player
 	Vector2 position = { GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f };
 
 	Rectangle playerRect = { position.x, position.y, 20, 40 };
+	Rectangle blockRect = { 0 };
 
 	Player(Vector2 startPos);
 
 	void jump(float& deltaTime);
 	void move(float& deltaTime);
+
 	void update(float& deltaTime, World& world);
 };

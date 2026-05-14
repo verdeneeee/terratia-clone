@@ -3,14 +3,37 @@
 
 Player::Player(Vector2 startPos) {}
 
-void Player::jump(float& deltaTime)
+void World::placeBlock(Vector2& mousePos, Camera2D cam)
 {
-	if (IsKeyDown(KEY_SPACE) && isGrounded)
+	if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
 	{
-		isGrounded = 0;
-		velocity.y = -jumpForce;
-	}
+		float gridX = (int)(GetScreenToWorld2D(mousePos, cam).x / cellSize) * cellSize;
+		float gridY = (int)(GetScreenToWorld2D(mousePos, cam).y / cellSize) * cellSize;
 
+		placedBlocks.push_back({ gridX, gridY - 30.0f });
+	}
+}
+
+void World::destroyBlock(Vector2& mousePos, Camera2D cam)
+{
+	if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))
+	{
+		for (int i = 0; i < placedBlocks.size(); i++)
+		{
+			if (CheckCollisionPointRec(GetScreenToWorld2D(mousePos, cam), { placedBlocks[i].x, placedBlocks[i].y + 30, cellSize, cellSize }))
+			{
+				placedBlocks.erase(placedBlocks.begin() + i);
+				break;
+			}
+		}
+	}
+}
+
+void Player::jump(float& deltaTime)
+{	
+	if(IsKeyDown(KEY_SPACE) && isGrounded) velocity.y = -jumpForce;
+
+	position.y += velocity.y * deltaTime;
 	if (!isGrounded) velocity.y += gravity * deltaTime;
 }
 
@@ -31,7 +54,7 @@ void Player::update(float& deltaTime, World& world)
 
 	for (Vector2 block : world.placedBlocks)
 	{
-		Rectangle blockRect = { block.x, block.y + 30, world.cellSize, world.cellSize };
+		blockRect = { block.x, block.y + 30, world.cellSize, world.cellSize };
 
 		if (CheckCollisionRecs(playerRect, blockRect))
 		{
@@ -41,14 +64,13 @@ void Player::update(float& deltaTime, World& world)
 	}
 
 	jump(deltaTime);
-	position.y += velocity.y * deltaTime;
 	isGrounded = false;
 
 	playerRect = { position.x, position.y, 20, 40 };
 
 	for (Vector2 block : world.placedBlocks)
 	{
-		Rectangle blockRect = { block.x, block.y + 30, world.cellSize, world.cellSize };
+		blockRect = { block.x, block.y + 30, world.cellSize, world.cellSize };
 
 		if (CheckCollisionRecs(playerRect, blockRect))
 		{
@@ -64,5 +86,6 @@ void Player::update(float& deltaTime, World& world)
 			}
 		}
 	}
+
 	DrawRectangle(position.x, position.y, 20, 40, WHITE);
 }

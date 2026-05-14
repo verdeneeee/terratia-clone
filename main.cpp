@@ -29,13 +29,12 @@ int main()
             DrawFPS(10, 10);
                 BeginMode2D(cam);
 
-
                 player.update(deltaTime, world);
                 world.update(mousePos, cam);
 
             EndMode2D();
         EndDrawing();
-    }
+     }
 
     CloseWindow();
 
